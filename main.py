@@ -1,20 +1,53 @@
-class BankAccount:
-    company = "BigBanks"
-    def __init__(self, name, account_number, balance, has_overdraft):
-        self.name = name
-        self.account_number = account_number
-        self.balance = balance
-        self.has_overdraft = has_overdraft
-    
-    def balance(self):
-        return f"Your balance is: £${self.balance}"
+from abc import ABC, abstractmethod
+
+# Abstraction Base Class: Cannot directly initialise this class
+class BankAccount(ABC):
+    def __init__(self, name, account_number, balance):
+        self.__name = name # Private
+        self.__account_number = account_number
+        self._balance = balance # Protected, children can access
+        
+    # Concrete Methods: Shared by all children
+    def get_balance(self):
+        return self._balance
     
     def add_money(self, amount):
-        self.balance += amount
-        return f"Your new balance is: £${self.balance}"
+        if amount <= 0:
+            return f"Error: Amount must be positive"
+        self._balance += amount
+        return f"You deposited: £{amount}, Your new balance is: £{self.get_balance()}"
+    
+    # Abstract Methods: Children must implement their own functions defined here
+    @abstractmethod
+    def withdraw_money(self, amount):
+        pass
+    
+# This class inherits from above class
+class CurrentAccount(BankAccount):
+    def __init__(self, name, account_number, balance, overdraft_limit):
+        super().__init__(name, account_number, balance)
+        self.__overdraft_limit = overdraft_limit
+            
+    # Polymorphism: this overrides the parent's withdraw_money class
+    def withdraw_money(self,amount):
+        if amount <= 0:
+            return f"Error: Amount must be positive"
+        elif amount > (self.get_balance() + self.__overdraft_limit):
+            return f"Error: You do not have enough money and overdraft"
+        else:
+            self.add_money(-amount)
+            return f"You have withdrawn: £{amount}, Your new balance is: £{self._balance}"
         
-"""
-Testing Data
-bank_account = BankAccount("Jane", 101010, 200, False)
-print(bank_account.name)
-"""
+class SavingsAccount(BankAccount):
+    def withdraw_money(self, amount):
+        if amount <= 0:
+            return f"Error: Amount must be positive"
+        elif amount > self._balance:
+            return f"Error: You do not have enough money"
+        else:
+            self._balance -= amount
+            return f"You have withdrawn: £{amount}, Your new balance is: £{self._balance}"
+
+account = SavingsAccount("Jane", 101010, 200)
+print(account.get_balance())
+print(account.withdraw_money(100))
