@@ -21,10 +21,4 @@ def load_config(config_path="config.json"):
         print(f"Error: File not found at: '{config_path}'")
     except json.JSONDecodeError:
         print(f"Error: Failed to decode json at '{config_path}'")
-        
-if __name__ == "__main__":
-    config = load_config()
-    if config:
-        print("Config loaded successfully:")    
-        print(f"Base URL: {config.get('base_url')}")
-        print(f"Browser: {config.get('browser')}")
+    
