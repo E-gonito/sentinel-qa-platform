@@ -19,9 +19,9 @@ class BankAccount(ABC):
     
     def add_money(self, amount):
         if amount <= 0:
-            return f"Error: Amount must be positive"
+            raise ValueError("Amount must be positive")
         self._balance += amount
-        return f"You deposited: £{amount}, Your new balance is: £{self.get_balance()}"
+        return self.get_balance
     
     # Abstract Methods: Children must implement their own functions defined here
     @abstractmethod
@@ -37,19 +37,19 @@ class CurrentAccount(BankAccount):
     # Polymorphism: this overrides the parent's withdraw_money class
     def withdraw_money(self,amount):
         if amount <= 0:
-            return f"Error: Amount must be positive"
+            raise ValueError("Amount must be positive")
         elif amount > (self.get_balance() + self.__overdraft_limit):
-            return f"Error: You do not have enough money and overdraft"
+            raise ValueError("Insufficient funds")
         else:
             self._balance -= amount
-            return f"You have withdrawn: £{amount}, Your new balance is: £{self._balance}"
+            return self.get_balance()
         
 class SavingsAccount(BankAccount):
     def withdraw_money(self, amount):
         if amount <= 0:
-            return f"Error: Amount must be positive"
+            raise ValueError("Amount must be positive")
         elif amount > self._balance:
-            return f"Error: You do not have enough money"
+            raise ValueError("Insufficient funds")
         else:
             self._balance -= amount
-            return f"You have withdrawn: £{amount}, Your new balance is: £{self._balance}"
+            return self.get_balance()
