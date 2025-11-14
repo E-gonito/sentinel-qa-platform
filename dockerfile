@@ -25,7 +25,7 @@ ENTRYPOINT []
 
 USER nonroot
 
-RUN pytest
+RUN uv run pytest -p no:cacheprovider
 
 # PROD image: To Be Done after dev
 
