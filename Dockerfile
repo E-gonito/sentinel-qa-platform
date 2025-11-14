@@ -1,17 +1,31 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# DEV image
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-# Set the working directory in the container
+RUN groupadd --system --gid 999 nonroot \
+ && useradd --system --gid 999 --uid 999 --create-home nonroot
+
 WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY pyproject.toml .
+ENV UV_COMPILE_BYTECODE=1
 
-# Install any needed packages specified in requirements.txt
-RUN  .
+ENV UV_LINK_MODE=copy
 
-# Copy the rest of the application's code to the working directory
-COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project 
 
-# Specify the command to run on container start
-CMD ["python", "main.py"]
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked 
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+ENTRYPOINT []
+
+USER nonroot
+
+RUN pytest
+
+# PROD image: To Be Done after dev
+
